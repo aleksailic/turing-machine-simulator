@@ -1,0 +1,324 @@
+@font-face {
+  font-family: 'Andes';
+  src: url(Andes.ttf);
+  font-weight: 400; }
+body, html {
+  background-color: #f1ede8;
+  background-image: url("http://i.imgur.com/ooB3R0M.png");
+  line-height: 1.5;
+  text-align: left;
+  overflow: hidden; }
+
+#title {
+  display: block;
+  padding: 1rem;
+  text-align: center;
+  font-size: 5rem;
+  color: #2d2d2d;
+  font-family: 'Andes', serif;
+  letter-spacing: 3px;
+  text-shadow: 3px 3px 0 #d8cdbf; }
+
+@media only screen and (max-width: 800px) {
+  #title {
+    font-size: 2rem; } }
+#machine {
+  width: 100%;
+  margin: 40px 0;
+  position: relative;
+  z-index: 99; }
+
+#pointer {
+  display: block;
+  color: #C63D0F;
+  font-size: 60px;
+  text-shadow: #ded4c8 2px 2px 20px 6px;
+  text-align: center; }
+
+#machine #main {
+  width: 100%;
+  height: 100px;
+  position: relative;
+  border: 2px solid #2d2d2d;
+  border-left: 0;
+  border-right: 0;
+  background: #fff;
+  font-size: 0; }
+
+#main ul {
+  display: inline-block;
+  margin: 0;
+  transition: transform 700ms;
+  white-space: nowrap; }
+
+#main li {
+  font-size: 1.5rem;
+  text-align: center;
+  display: inline-block;
+  height: 100px;
+  width: 100px;
+  line-height: 100px;
+  box-sizing: border-box;
+  border-right: 1px solid black; }
+
+#machine li:last-child {
+  border-right: 0; }
+
+.arr {
+  position: absolute;
+  top: 20px;
+  color: black;
+  font-size: 40px;
+  cursor: pointer;
+  z-index: 9000; }
+
+.arr-l {
+  left: 0;
+  transform: scaleX(-1); }
+
+.arr-r {
+  right: 0; }
+
+#steps {
+  display: block;
+  text-align: center;
+  margin: 30px 0; }
+
+#steps ul {
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.4s ease, opacity 0s; }
+
+#steps li {
+  display: inline-block;
+  width: 60px;
+  height: 60px;
+  line-height: 60px;
+  border-radius: 100%;
+  margin: 0 10px;
+  color: #d2d2d2;
+  font-family: "Roboto",sans-serif;
+  font-size: 1.5rem;
+  text-shadow: #2d2d2d 1px 1px 1px;
+  box-shadow: #ded4c8 1px 1px 1px 1px;
+  background: #004080;
+  position: relative; }
+
+#steps li.active {
+  background: #257800; }
+
+#steps li .desc {
+  position: absolute;
+  display: block;
+  z-index: 90001;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 4px;
+  padding: 4px;
+  margin: 0;
+  line-height: 30px;
+  font-size: 1rem;
+  color: #d2d2d2;
+  width: 200px;
+  margin-left: -50%;
+  margin-top: 30px;
+  opacity: 0;
+  visibility: hidden;
+  transition: visibility 0s, opacity 0.4s ease; }
+
+#steps li:hover .desc {
+  visibility: visible;
+  opacity: 1; }
+
+#steps li .desc::before {
+  display: block;
+  position: absolute;
+  top: -26px;
+  left: 45px;
+  content: "";
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 15px 26.0px 15px;
+  border-color: transparent transparent rgba(0, 0, 0, 0.7) transparent; }
+
+#console {
+  width: 50%;
+  display: block;
+  margin: 0 auto;
+  background: #222;
+  border-radius: 5px 5px 0 0;
+  min-height: 200px;
+  position: absolute;
+  bottom: -170px;
+  left: 0;
+  right: 0;
+  transition: bottom 0.4s;
+  font-family: Monaco, Consolas, "Lucida Console", monospace; }
+
+#console.show {
+  bottom: 0; }
+
+#console > header {
+  background: #353535;
+  padding: 5px;
+  color: #cdcdcd;
+  text-align: center;
+  border-radius: inherit; }
+
+#console #input {
+  padding: 10px;
+  overflow-y: auto; }
+
+#console p {
+  color: #f7f7f7; }
+
+#controls {
+  display: block;
+  text-align: center; }
+
+#controls button {
+  width: auto;
+  overflow: visible;
+  background: transparent;
+  font: inherit;
+  line-height: normal;
+  -webkit-font-smoothing: inherit;
+  -moz-osx-font-smoothing: inherit;
+  -webkit-appearance: none;
+  text-transform: capitalize;
+  border: 1px solid #C63D0F;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 15px;
+  margin: 0 10px;
+  font-family: "Roboto",sans-serif;
+  font-size: 1.8rem;
+  color: #d2d2d2;
+  background: #e24611;
+  box-shadow: #aa340d 0px 4px 2px 1px;
+  position: relative;
+  min-width: 100px; }
+
+#controls button:active {
+  top: 4px;
+  box-shadow: #aa340d 0px 0px 0px 0px; }
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 9001;
+  /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: black;
+  background-color: rgba(0, 0, 0, 0.4); }
+
+/* The Close Button */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 20px;
+  font-weight: bold; }
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer; }
+
+.modal-header {
+  padding: 10px 16px;
+  background-color: #036;
+  color: white; }
+
+.modal-body {
+  padding: 2px 16px; }
+
+.modal-footer {
+  padding: 2px 16px;
+  background-color: #036;
+  color: white;
+  text-align: right; }
+
+.modal button {
+  width: auto;
+  overflow: visible;
+  background: transparent;
+  line-height: normal;
+  -webkit-font-smoothing: inherit;
+  -moz-osx-font-smoothing: inherit;
+  -webkit-appearance: none;
+  box-shadow: none;
+  cursor: pointer;
+  position: relative;
+  outline: none;
+  border-radius: 6px;
+  border: 1px solid #f1ede8;
+  padding: 10px;
+  margin: 5px 10px;
+  font-family: "Roboto",sans-serif;
+  font-size: 1rem;
+  color: #d2d2d2; }
+
+.modal button:active {
+  top: 2px; }
+
+/* Modal Content */
+.modal-content {
+  position: relative;
+  background-color: #fefefe;
+  margin: auto;
+  padding: 0;
+  border: 1px solid #888;
+  width: 80%;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  -webkit-animation-name: animatetop;
+  -webkit-animation-duration: 0.4s;
+  animation-name: animatetop;
+  animation-duration: 0.4s; }
+
+.modal textarea {
+  overflow: auto;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  max-width: 100%;
+  min-width: 100%;
+  min-height: 200px; }
+
+input[type=text], textarea {
+  transition: all 0.30s ease-in-out, height 0s;
+  -webkit-transition: all 0.30s ease-in-out, height 0s;
+  -moz-transition: all 0.30s ease-in-out, height 0s;
+  -o-transition: all 0.30s ease-in-out, height 0s;
+  outline: none;
+  padding: 3px 0 3px 3px;
+  margin: 5px 1px 3px 0;
+  border: 1px solid #DDDDDD; }
+
+input[type=text]:focus, textarea:focus {
+  box-shadow: 0 0 5px #51cbee;
+  padding: 3px 0 3px 3px;
+  margin: 5px 1px 3px 0;
+  border: 1px solid #51cbee; }
+
+/* Add Animation */
+@-webkit-keyframes animatetop {
+  from {
+    top: -300px;
+    opacity: 0; }
+  to {
+    top: 0;
+    opacity: 1; } }
+@keyframes animatetop {
+  from {
+    top: -300px;
+    opacity: 0; }
+  to {
+    top: 0;
+    opacity: 1; } }
+
+/*# sourceMappingURL=style.css.map */
