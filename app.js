@@ -145,8 +145,10 @@ let TM=new function(){
             self.current=state.next_id;
             tm_el.innerHTML=state.out;
 
-            if(self.current==="+" || self.current==="-")
+            if(self.current==="+")
                 self.stop(1);
+            else if(self.current==="-")
+                self.stop(-1);
 
             TM.update();
             UI.update();
