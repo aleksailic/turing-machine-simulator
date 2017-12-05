@@ -165,7 +165,7 @@ let TM=new function(){
     this.update=function(){
         //Ovo bi trebalo biti deo UI komponente, ali ostavicu ovde kako bi TM modul bio kompletan
         //Podesi traku u zavisnosti od offseta i centriraj
-        let margin=window.innerWidth/2-__size/2-10;
+        let margin=window.innerWidth/2-__size/2;
         list.style.transform='translate('+(-TM.offset*__size)+'px,0)';
         list.style.marginLeft=margin+'px';
     };
