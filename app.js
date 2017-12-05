@@ -83,7 +83,7 @@ let TM=new function(){
         self.data=DB.get('TM.data');
         self.interval=DB.get('TM.interval');
 
-        self.first=self.data.length //prvi element nalazimo dinamicki u narednim linijama pa je neophodno postaviti inicijalno na visoku vrednost
+        self.first=self.data.length; //prvi element nalazimo dinamicki u narednim linijama pa je neophodno postaviti inicijalno na visoku vrednost
         self.alphabet.substring(1).forEach((el)=>{ //Prvi znak alfabeta je blanko znak njega preskacemo.
             if (self.data.indexOf(el) < self.first)
                 self.first=self.data.indexOf(el);
@@ -290,9 +290,7 @@ let UI=new function(){
         let modal=(function(){
             const id=document.getElementsByClassName("modal")[0];
             const span = document.getElementsByClassName("close")[0];
-            let program = DB.get("TM.program") || "";
-
-            document.getElementById('program_txt').value=program;
+            document.getElementById('program_txt').value= DB.get("TM.program") || "";
 
             self.btns['LOAD'].addEventListener("click",function(){// When the user clicks on the button, open the modal
                 id.style.display = "block";
@@ -309,7 +307,7 @@ let UI=new function(){
         })();
 
         //Dodaj dogadjaje vezane za UI Parsera
-        let parser=(function(){
+        (function(){
             const btn=self.btns['MODAL_SUBMIT'];
             const textbox_id='program_txt';
             btn.addEventListener("click",()=> {
@@ -339,7 +337,7 @@ let UI=new function(){
             self.control.add(TM, 'offset').step(1).listen()
 
         ]);
-        self.control.add(TM,'init')
+        self.control.add(TM,'init');
 
         self.btns["START"].addEventListener("click",function(){
             if(this.dataset['func']==='start'){
