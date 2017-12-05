@@ -1,4 +1,9 @@
-let __defaults=[{key:'TM.interval',val:500},{key:'TM.alphabet',val:'b01'},{key:'TM.data',val:'b10101b'}];
+let __defaults=[
+	{key:'TM.interval',val:500},
+	{key:'TM.alphabet',val:'b01'},
+	{key:'TM.data',val:'b10101b'},
+	{key:'TM.program',val:'//Da li je broj palindrom?\n\nf(q0,b)=(q-,b,+1)\nf(q0,0)=(q1,b,+1)\nf(q0,1)=(q2,b,+1)\n\nf(q1,b)=(q3,b,-1)\nf(q1,0)=(q1,0,+1)\nf(q1,1)=(q1,1,+1)\n\nf(q2,b)=(q4,b,-1)\nf(q2,0)=(q2,0,+1)\nf(q2,1)=(q2,1,+1)\n\nf(q3,b)=(q+,b,+1)\nf(q3,0)=(q5,b,-1)\nf(q3,1)=(q-,1,+1)\n\nf(q4,b)=(q+,b,+1)\nf(q4,0)=(q-,b,-1)\nf(q4,1)=(q5,b,-1)\n\nf(q5,b)=(q6,b,+1)\nf(q5,0)=(q5,0,-1)\nf(q5,1)=(q5,1,-1)\n\nf(q6,b)=(q+,b,+1)\nf(q6,0)=(q1,b,+1)\nf(q6,1)=(q2,b,+1)'}
+];
 let __size=100;
 let __id="list";
 String.prototype.forEach=function(callback){
@@ -12,30 +17,24 @@ Status codes:
    -1 ERROR
     0 GENERAL INFO
     1 JOB SUCCESS
+Konzola boji tekst koji je okruzen znakovima %
 */
 let CONSOLE=new function(){
-    let _id='input';
-    let c={'-1':'red','0':'orange','1':'green'};
+    const id='input';
+    const codes={'-1':'red','0':'orange','1':'green'};
     this.print=function(msg,from,status,debug){
-        let html="";
-        if(debug!==undefined)
-            html+='<p class="debug">';
-        else
-            html+="<p>";
-        if(from!==undefined)
-            html+=from+': ';
-        if(status===undefined || status===null)
-            status=0;
+    	let html=`<p class="${debug || ""}">${ from ? (from+': ') : "" }`;
+        status=status || 0;
 
         let date = new Date();
-        let timestamp = '['+date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds()+']';
+        let timestamp=`[${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}]`;
 
-        html+=msg.replace(/%(.+)%/,`<span style="color:${c[status]};">`+'$1'+"</span>");
+        html+=msg.replace(/%(.+)%/,`<span style="color:${codes[status]};">`+'$1'+"</span>");
         html+=`<span class="timestamp">${timestamp}</span>`;
         html+='</p>';
 
-        document.getElementById(_id).innerHTML+=html;
-        document.getElementById('signal').style.color=c[status];
+        document.getElementById(id).innerHTML+=html;
+        document.getElementById('signal').style.color=codes[status];
     };
 
     //Sredjuje prikazivanje konzole na klik
@@ -48,10 +47,8 @@ let CONSOLE=new function(){
 }();
 //Sistem za dugorocno cuvanje informacija
 let DB=new function(){
-    let engine=window;
-    if (typeof(Storage) !== "undefined")
-        engine=localStorage;
-    let self=this;
+    const engine = localStorage || window; //ukoliko localStorage nije podrzan koristimo global scope kao engine, mada browser koji ne podrzava localStorage ne podzrava i dobar deo ovog koda svakako
+    const self=this;
     this.init=function(){
         __defaults.forEach(function(el){
             self.setDefault(el.key,el.val);
@@ -70,24 +67,30 @@ let DB=new function(){
     this.erase=function(){engine.clear();};
 };
 let TM=new function(){
-    this.offset=0;
+    this.first=0; //startni offset udaljenosti prvog elementa
+    this.offset=0; //ukpuni offset koji se menja tokom programa
     let list=null;
-    let self=this;
+    const self=this;
 
     this.paused=false;
     this.finished=true;
-    this.current=0;
+    this.current=0; //trenutna instrukcija
 
     this.clock=null;
 
     this.init=function(){
-        self.offset=1; //uvek kreni od prvog elementa
         self.alphabet=DB.get('TM.alphabet');
         self.data=DB.get('TM.data');
         self.interval=DB.get('TM.interval');
 
-        let html="";
+        self.first=self.data.length //prvi element nalazimo dinamicki u narednim linijama pa je neophodno postaviti inicijalno na visoku vrednost
+        self.alphabet.substring(1).forEach((el)=>{ //Prvi znak alfabeta je blanko znak njega preskacemo.
+            if (self.data.indexOf(el) < self.first)
+                self.first=self.data.indexOf(el);
+        });
+        self.offset=self.first; //namesti ukupan offset na startni
 
+        let html="";
         try{
             self.data.forEach((el)=>{
                 if(!self.alphabet.includes(el))throw {msg:'Data not from alphabet'};
@@ -95,6 +98,7 @@ let TM=new function(){
             });
         }catch(e){
             CONSOLE.print(`%${e.msg}%`,"TM",-1);
+            return;
         }
 
         list=document.getElementById(__id);
@@ -105,14 +109,12 @@ let TM=new function(){
         self.update();
     };
     this.load=function(p){ //Ucitaj program
-        if(p===undefined)
-            p=DB.get("TM.program");
-
+        p = p || DB.get("TM.program");
         try{
             self.program=PARSER.parse(p);
         }catch(e){
             CONSOLE.print(`%${e.msg}%`,"PARSER",-1);
-            return -1;
+            return;
         }
 
         UI.STEPS.init();
@@ -131,7 +133,7 @@ let TM=new function(){
 
         if(!self.paused){ //start new
             self.current=0;
-            self.offset=1;
+            self.offset=self.first;
         }else{ //resume
             CONSOLE.print("resumed","TM");
             self.paused=false;
@@ -173,9 +175,9 @@ let TM=new function(){
 let PARSER=new function(){
     this.parse=function(txt){
         if(txt===undefined) throw {msg:'Nothing to parse'};
+        txt=txt.replace(/\/\/+.*/g, ''); //ukloni "komentare" tj. delove teksta koji pocinju sa //
         txt=txt.replace(/\s/g, ''); //ukloni whitespace
         let S = DB.get("TM.alphabet");
-
 
         //Rabijam tekst u niz zarad lakse manipulacije
         let line="";
@@ -231,8 +233,8 @@ let PARSER=new function(){
 };
 
 let UI=new function(){
-    let self=this;
-    let btn_ids={
+    const self=this;
+    const btn_ids={
         'LOAD':"load_btn",
         'START':"start_btn",
         'STOP':'stop_btn',
@@ -243,7 +245,7 @@ let UI=new function(){
         id:null,//ne moze se dodeliti vrednost pre inita
         init:function(){
             if(!TM.program)return -1; //Ne valja nam posao vizuelizacije koraka ukoliko program ne postoji
-            let id = self.STEPS.id = document.getElementById("steps").getElementsByTagName("ul")[0];
+            const id = self.STEPS.id = document.getElementById("steps").getElementsByTagName("ul")[0];
             let html="";
             for(let i=0;i<TM.program.length;i++){
                 let state=TM.program[i];
@@ -259,8 +261,8 @@ let UI=new function(){
         update:function() {
             let states=self.STEPS.id.getElementsByTagName("li");
             for(let i=0;i<states.length;i++){
-                if(TM.current==="+" || TM.current==="-")
-                    console.log("hihi");
+                if(TM.current==="+" || TM.current==="-")//detekcija + i - stanja, moze se iskoristiti kasnije recimo za bojenje koraka
+                    console.log(" ");
                 else if(i===parseInt(TM.current))
                     states[i].classList.add('active');
                 else
@@ -281,15 +283,16 @@ let UI=new function(){
                     TM.offset--;
                 else TM.offset++;
                 TM.update();
-                console.log(TM.offset);
             });
         });
 
         //Dodaj dogadjaje za pop-up prozor koji sluzi za ucitavanje programa
         let modal=(function(){
-            let id=document.getElementsByClassName("modal")[0];
-            let span = document.getElementsByClassName("close")[0];
-            document.getElementById('program_txt').value=DB.get("TM.program");
+            const id=document.getElementsByClassName("modal")[0];
+            const span = document.getElementsByClassName("close")[0];
+            let program = DB.get("TM.program") || "";
+
+            document.getElementById('program_txt').value=program;
 
             self.btns['LOAD'].addEventListener("click",function(){// When the user clicks on the button, open the modal
                 id.style.display = "block";
@@ -307,8 +310,8 @@ let UI=new function(){
 
         //Dodaj dogadjaje vezane za UI Parsera
         let parser=(function(){
-            let btn=self.btns['MODAL_SUBMIT'];
-            let textbox_id='program_txt';
+            const btn=self.btns['MODAL_SUBMIT'];
+            const textbox_id='program_txt';
             btn.addEventListener("click",()=> {
                 let txt=document.getElementById(textbox_id).value;
                 DB.set('TM.program',txt);
@@ -377,7 +380,6 @@ let UI=new function(){
     };
     this.slideDown=function(elem) {
         elem.style.maxHeight = '1000px';
-        // We're using a timer to set opacity = 0 because setting max-height = 0 doesn't (completely) hide the element.
         elem.style.opacity   = '1';
     };
     this.slideUp=function(elem) {
