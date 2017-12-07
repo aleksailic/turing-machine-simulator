@@ -106,6 +106,9 @@ body, html {
 #steps li.active {
   background: #257800; }
 
+#steps li.finished {
+  background: #e24611; }
+
 #steps li .desc {
   position: absolute;
   display: block;

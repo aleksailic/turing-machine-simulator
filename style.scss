@@ -142,6 +142,9 @@ body,html{
 #steps li.active{
   background:$color-step-active;
 }
+#steps li.finished{
+  background:lighten($color-text-strong,6);
+}
 #steps li .desc{
   position:absolute;
   display:block;

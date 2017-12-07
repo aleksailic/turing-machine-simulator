@@ -160,6 +160,8 @@ let TM=new function(){
         CONSOLE.print("%stopped%","TM",code);
         self.finished=true;
         self.playing=false;
+        self.paused=false;
+        UI.update();
         clearInterval(self.clock);
     };
     this.update=function(){
@@ -194,6 +196,13 @@ let PARSER=new function(){
         //Magija regexpa!
         let S_str=S.toString().replace(/[,]/g,""); //pretvori u string ali ukloni zareze
         let exp_str="f\\(q(\\d+),(["+S_str+"])\\)=\\(q(\\d+|[-+]).(["+S_str+"]),([+-])1\\)";
+        /*
+            1: state_id
+            2: machine_value
+            3: next_state_id
+            4: next_machine_value
+            5: move_direction
+         */
         let exp=new RegExp(exp_str,"");
 
         //Proveravamo da li uneti kod ima neke lako uocljive greske
@@ -228,6 +237,20 @@ let PARSER=new function(){
                 throw {msg:'Instruction number mismatch'};
             prev_id = id;
         }
+        //Sortiramo po id-u ukoliko instrukcije nisu redom pisane
+        program.sort((a,b)=>{
+            return parseInt(a.id)>parseInt(b.id);
+        });
+        //Proveravamo da li indeksi odgovaraju id-ovima. Ako ne to znaci da postoje procepi u stanjima, sto iako nije po strogoj def. TM mislim da iz prakticnih razloga mozemo dozvoliti
+        try{
+            program.forEach((obj, index)=> {
+                if (parseInt(obj.id) != index)
+                    throw {msg: 'Array index mismatch, some states are missing!'};
+            });
+        }catch(e){
+            CONSOLE.print(`%${e.msg}%`,'PARSER',0); //warning msg
+        }
+
         return program;
     };
 };
@@ -251,22 +274,20 @@ let UI=new function(){
                 let state=TM.program[i];
                 let txt="";
                 for(const prop in state.data)
-                    txt+="<p>"+state.data[prop].txt;
+                    txt+=`<p>${state.data[prop].txt}`;
 
-                html+=`<li>${i}<div class="desc">${txt}</div></li>`;
+                html+=`<li>${state.id}<div class="desc">${txt}</div></li>`;
             }
             id.innerHTML=html;
             self.slideDown(id);
         },
         update:function() {
             let states=self.STEPS.id.getElementsByTagName("li");
-            for(let i=0;i<states.length;i++){
-                if(TM.current==="+" || TM.current==="-")//detekcija + i - stanja, moze se iskoristiti kasnije recimo za bojenje koraka
-                    console.log(" ");
-                else if(i===parseInt(TM.current))
+            for(let i=0;i<states.length;i++) {
+                states[i].className = ""; //Ukloni sve klase
+                let id=parseInt(states[i].innerHTML.match(/\d+/)[0]);
+                if(id===parseInt(TM.current))
                     states[i].classList.add('active');
-                else
-                    states[i].classList.remove('active');
             }
         }
     };
