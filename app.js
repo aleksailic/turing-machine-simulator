@@ -85,7 +85,7 @@ let TM=new function(){
 
         self.first=self.data.length; //prvi element nalazimo dinamicki u narednim linijama pa je neophodno postaviti inicijalno na visoku vrednost
         self.alphabet.substring(1).forEach((el)=>{ //Prvi znak alfabeta je blanko znak njega preskacemo.
-            if (self.data.indexOf(el) < self.first)
+            if (self.data.indexOf(el)>=0 && self.data.indexOf(el) < self.first)
                 self.first=self.data.indexOf(el);
         });
         self.offset=self.first; //namesti ukupan offset na startni
